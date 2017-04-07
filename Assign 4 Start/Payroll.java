@@ -35,9 +35,9 @@ public class Payroll
                 System.out.println ("Employee " + nbr + " added to the Payroll");
             }
         }
-        catch(Exception x)
+        catch(NullPointerException x)
         {
-
+            System.out.println("Value was null");
         }
     }
 
@@ -90,7 +90,6 @@ public class Payroll
         {
             System.out.println("Employee does not exist in the payroll.  None removed");
         }
-
     }
 
     // prints the weekly salary of a particular employee (Option S)
@@ -148,25 +147,28 @@ public class Payroll
         String empType = "";
 
         int i = 0;
-        while (i < personnel.size())
-        {
-            e = personnel.get(i);
-            type = e.getType();
-            switch (type)
+        try{
+            while (i < personnel.size())
             {
-                case 'S':
-                empType = "Salary   ";
-                break;
-                case 'H':
-                empType = "Hourly    ";
-                break;
-                case 'C':
-                empType = "Commission";
-                break;
+                e = personnel.get(i);
+                type = e.getType();
+                switch (type)
+                {
+                    case 'S':
+                    empType = "Salary   ";
+                    break;
+                    case 'H':
+                    empType = "Hourly    ";
+                    break;
+                    case 'C':
+                    empType = "Commission";
+                    break;
+                }
+                System.out.println (e.getEmpName() + "\t" + e.getEmpNum() + "\t" + empType + "\t" + e.calcWeeklySalary());
+                i++;
             }
-            System.out.println (e.getEmpName() + "\t" + e.getEmpNum() + "\t" + empType + "\t" + e.calcWeeklySalary());
-            i++;
         }
+        catch(IndexOutOfBoundsException x){}
     }
 
     // end of week (Option W) (for now now writing to file)
@@ -229,48 +231,61 @@ public class Payroll
         char type;    
 
         System.out.println ("Please enter the employee type: S, H, or C");
-        type = kb.nextLine().charAt(0); 
+        try{
+            type = kb.nextLine().charAt(0);
 
-        if (type == 'S' || type == 'H' || type == 'C') 
-        {
-            System.out.println ("Please enter the name of the employee");
-            name = kb.nextLine();
-            System.out.println ("Please enter the department of " + name);
-            dept = kb.nextLine();
-
-            switch (type)
+            if (type == 'S' || type == 'H' || type == 'C') 
             {
-                case 'S':
-                System.out.println ("Please enter the yearly salary of " + name);
-                double sal = kb.nextDouble();
-                e1 = new Salary (name, n1, dept, sal);
-                break;
-                case 'H':
-                System.out.println("Please enter the hourly rate of " + name);
-                double rate = kb.nextDouble();
-                System.out.println("Please enter the number of hours worked by " + name + " this week");
-                double hrs = kb.nextDouble();
-                e1 = new Hourly(name, n1, dept, rate, hrs);
-                break;
-                case 'C':
-                System.out.println ("Please enter the number of weeks " + name + " has been working");
-                int wks = kb.nextInt();
-                System.out.println ("Please enter the base salary of " + name);
-                double base = kb.nextDouble();
-                System.out.println ("Please enter this week's sales for " + name);
-                double w_sales = kb.nextDouble();
-                System.out.println ("Please enter the year to date sales for " + name);
-                double y_sales = kb.nextDouble();
-                System.out.println("Please enter the commission rate of " + name);
-                double comm = kb.nextDouble();
-                e1 = new Commission(name, n1, dept, wks, base, w_sales, y_sales, comm);
-                break;                
+                System.out.println ("Please enter the name of the employee");
+                name = kb.nextLine();
+                System.out.println ("Please enter the department of " + name);
+                dept = kb.nextLine();
+
+                switch (type)
+                {
+                    case 'S':
+                    System.out.println ("Please enter the yearly salary of " + name);
+                    double sal = kb.nextDouble();
+                    e1 = new Salary (name, n1, dept, sal);
+                    break;
+                    case 'H':
+                    System.out.println("Please enter the hourly rate of " + name);
+                    double rate = kb.nextDouble();
+                    System.out.println("Please enter the number of hours worked by " + name + " this week");
+                    double hrs = kb.nextDouble();
+                    e1 = new Hourly(name, n1, dept, rate, hrs);
+                    break;
+                    case 'C':
+                    System.out.println ("Please enter the number of weeks " + name + " has been working");
+                    int wks = kb.nextInt();
+                    System.out.println ("Please enter the base salary of " + name);
+                    double base = kb.nextDouble();
+                    System.out.println ("Please enter this week's sales for " + name);
+                    double w_sales = kb.nextDouble();
+                    System.out.println ("Please enter the year to date sales for " + name);
+                    double y_sales = kb.nextDouble();
+                    System.out.println("Please enter the commission rate of " + name);
+                    double comm = kb.nextDouble();
+                    e1 = new Commission(name, n1, dept, wks, base, w_sales, y_sales, comm);
+                    break;                
+                }
+                kb.nextLine();
             }
-            kb.nextLine();
+        }
+        catch(InputMismatchException e){
+            System.out.println("Different value expected."); 
+            System.out.println ("Please enter the filename containg the employee information");
+        }
+        catch(NumberFormatException e){
+            System.out.println("Value not converted correctly.");
+            System.out.println ("Please enter the filename containg the employee information");
+        }
+        catch(NullPointerException e){
+            System.out.println("One of the values entered was contained nothing.");
+            System.out.println ("Please enter the filename containg the employee information");
         }
         return e1;
     }
-
     // prints info about all employees
     public void printAll()
     {
@@ -318,59 +333,68 @@ public class Payroll
         System.out.println ("Please enter the filename containg the employee information");
         int i = 0;
         boolean found = false;
-        while(i < 3 && found != true){
+        while(i < 2 && found != true){
             try{
                 fname = kb.nextLine();
                 in = new Scanner (new File(fname));
-                found = true;
+                while(in.hasNext())
+                {
+                    Employee e;
+                    empName = in.next();
+                    empNum = in.next();
+                    dept = in.next();
+                    type = in.next().charAt(0);
+                    try{
+                        switch(type)
+                        {
+                            case 'H':
+
+                            hrRate = in.nextDouble();
+
+                            hrsWorked = in.nextDouble();
+                            System.out.println ("Please enter the number of hours worked this week by " + empName); 
+                            hrsWorked = kb.nextDouble();
+                            e = new Hourly(empName, empNum, dept, hrRate, hrsWorked);
+                            personnel.add(e);
+                            break;
+                            case 'S':
+                            yrSal = in.nextDouble();
+                            e = new Salary(empName, empNum, dept, yrSal);
+                            personnel.add(e);
+                            break;
+                            case 'C':
+                            numWeeks = in.nextInt();
+                            base = in.nextDouble();
+                            wkSales = in.nextDouble();
+                            yrSales = in.nextDouble();
+                            commRate = in.nextDouble();
+                            System.out.println ("Please enter the weekly sales of " + empName);
+                            wkSales = kb.nextDouble();
+                            e = new Commission(empName, empNum, dept, numWeeks, base, wkSales, yrSales, commRate);
+                            personnel.add(e);
+                            break;
+                            default:
+                            System.out.println(type + " is not a valid type");
+                        }
+                    }
+                    catch(InputMismatchException x){
+                        System.out.println("Different value expected."); 
+                        System.out.println("Caught");
+                    }
+                    catch(NumberFormatException x){
+                        System.out.println("Value not converted correctly.");
+                        System.out.println ("Please enter the filename containg the employee information");
+                    }
+                    catch(NullPointerException x){
+                        System.out.println("One of the values entered was contained nothing.");
+                        System.out.println ("Please enter the filename containg the employee information");
+                    }
+                    found = true;
+                }
             }
-            catch(Exception x){
-                System.out.println("File was not found. " + (3 - i) + " attempts remaining.");
+            catch(FileNotFoundException e){
+                System.out.println("File was not found. " + (2 - i) + " attempts remaining.");
                 i++;
-            }
-        }
-
-        while(in.hasNext())
-        {
-            Employee e;
-            empName = in.next();
-            empNum = in.next();
-            dept = in.next();
-            type = in.next().charAt(0);
-
-            switch(type)
-            {
-                case 'H':
-                try{
-                    hrRate = in.nextDouble();
-                }
-                catch(InputMismatchException x){
-                    System.out.println("Hourly rate is not in the right format.");
-                }
-                hrsWorked = in.nextDouble();
-                System.out.println ("Please enter the number of hours worked this week by " + empName); 
-                hrsWorked = kb.nextDouble();
-                e = new Hourly(empName, empNum, dept, hrRate, hrsWorked);
-                personnel.add(e);
-                break;
-                case 'S':
-                yrSal = in.nextDouble();
-                e = new Salary(empName, empNum, dept, yrSal);
-                personnel.add(e);
-                break;
-                case 'C':
-                numWeeks = in.nextInt();
-                base = in.nextDouble();
-                wkSales = in.nextDouble();
-                yrSales = in.nextDouble();
-                commRate = in.nextDouble();
-                System.out.println ("Please enter the weekly sales of " + empName);
-                wkSales = kb.nextDouble();
-                e = new Commission(empName, empNum, dept, numWeeks, base, wkSales, yrSales, commRate);
-                personnel.add(e);
-                break;
-                default:
-                System.out.println(type + " is not a valid type");
             }
         }
         kb.nextLine();
